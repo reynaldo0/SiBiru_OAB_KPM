@@ -1,1 +1,33 @@
-sibiru.db
+# Dokumentasi internal (spesifikasi & roadmap)
+docs/
+
+# Database SQLite
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+backend/sibiru.db
+
+# Python & Backend
+__pycache__/
+*.py[cod]
+*$py.class
+backend/**/__pycache__/
+backend/.venv/
+.venv/
+.pytest_cache/
+
+# Node.js & Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.next/
+frontend/build/
+*.tsbuildinfo
+
+# Lingkungan & Editor
+.env
+.env.*
+!.env.example
+.vscode/
+.idea/
+*.log

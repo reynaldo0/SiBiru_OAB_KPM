@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --brand-primary: #006569;
+    --brand-primary-hover: #005457;
+    --brand-accent: #F59E0B;
+    --brand-accent-text: #B45309;
+    
+    --bg-canvas: #F8FAFC;
+    --bg-surface: #FFFFFF;
+    --border-subtle: #E2E8F0;
+    
+    --text-heading: #0F172A;
+    --text-body: #334155;
+    --text-muted: #64748B;
+    
+    --status-approved-bg: #E6F4F1;
+    --status-approved-text: #006569;
+    --status-pending-bg: #FEF3C7;
+    --status-pending-text: #B45309;
+    --status-rejected-bg: #FFF1F2;
+    --status-rejected-text: #BE123C;
+  }
+
+  body {
+    background-color: var(--bg-canvas);
+    color: var(--text-body);
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    margin: 0;
+    min-height: 100vh;
+  }
+
+  * {
+    border-color: var(--border-subtle);
+  }
+}
