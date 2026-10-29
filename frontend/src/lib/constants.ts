@@ -1,7 +1,7 @@
 export const APP_CONFIG = {
   NAME: 'SIBIRU',
   FULL_NAME: 'Sistem Informasi Peminjaman Ruangan Internal',
-  TAGLINE: 'Ruang kampus, lebih pasti.',
+  TAGLINE: 'Sistem Informasi Peminjaman Ruangan',
   DESCRIPTION:
     'Satu tempat untuk menemukan ruang, memeriksa jadwal, dan mengajukan peminjaman tanpa bentrok.',
   VERSION: '1.0.0',

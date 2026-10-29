@@ -42,23 +42,13 @@ export const Logo: React.FC<LogoProps> = ({ to = '/', tone = 'dark', compact = f
         </svg>
       </span>
       {!compact && (
-        <span className="flex flex-col">
-          <span
-            className={cn(
-              'font-display text-[1.35rem] font-semibold leading-none tracking-[-0.045em]',
-              tone === 'dark' ? 'text-sibiru-800' : 'text-white',
-            )}
-          >
-            SIBIRU
-          </span>
-          <span
-            className={cn(
-              'mt-1 text-[0.5625rem] font-bold uppercase tracking-[0.18em]',
-              tone === 'dark' ? 'text-ink-muted' : 'text-white/55',
-            )}
-          >
-            Ruang kampus, lebih pasti
-          </span>
+        <span
+          className={cn(
+            'font-display text-[1.4rem] font-bold leading-none tracking-[-0.035em]',
+            tone === 'dark' ? 'text-sibiru-900' : 'text-white',
+          )}
+        >
+          SIBIRU
         </span>
       )}
     </Link>
