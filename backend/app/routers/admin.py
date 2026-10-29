@@ -274,3 +274,31 @@ def toggle_room_status(
     db.commit()
     db.refresh(room)
     return format_room_response(room)
+
+
+@router.delete("/rooms/{room_id}", status_code=status.HTTP_200_OK, summary="Hapus Data Ruangan")
+def delete_room(
+    room_id: str,
+    admin_user: User = Depends(require_admin),
+    db: Session = Depends(get_db)
+):
+    """Menghapus master data ruangan secara permanen."""
+    room = db.query(Room).filter(Room.id == room_id).first()
+    if not room:
+        raise ResourceNotFoundException("Ruangan", room_id)
+
+    future_bookings = db.query(Booking).filter(
+        Booking.room_id == room_id,
+        Booking.booking_date >= date.today(),
+        Booking.status.in_(["APPROVED", "PENDING"])
+    ).count()
+
+    if future_bookings > 0:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Ruangan '{room.name}' tidak dapat dihapus karena masih memiliki {future_bookings} jadwal peminjaman aktif. Silakan nonaktifkan ruangan sebagai gantinya."
+        )
+
+    db.delete(room)
+    db.commit()
+    return {"message": f"Ruangan '{room.name}' berhasil dihapus."}

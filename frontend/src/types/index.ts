@@ -8,10 +8,12 @@ export interface User {
   organization: string;
   phone?: string | null;
   email?: string | null;
+  created_at?: string;
 }
 
 export interface DemoUser extends User {
-  label: string;
+  default_password?: string;
+  label?: string;
 }
 
 export interface Room {
@@ -63,6 +65,21 @@ export interface Booking {
   updated_at: string;
 }
 
+export type MasterScheduleItem = Booking;
+
+export interface ConflictDetail {
+  error: string;
+  message: string;
+  conflict_details: {
+    conflicting_booking_id?: string;
+    existing_status?: BookingStatus;
+    existing_organization?: string;
+    existing_start_time?: string;
+    existing_end_time?: string;
+    date?: string;
+  };
+}
+
 export interface AdminMetrics {
   pending_count: number;
   approved_count: number;
@@ -73,18 +90,23 @@ export interface AdminMetrics {
   today_bookings_count: number;
 }
 
-export interface BookingConflictDetail {
-  error: string;
+export interface RegisterPayload {
+  name: string;
+  identifier: string;
+  role: UserRole;
+  organization: string;
+  phone?: string;
+  email?: string;
+  password: string;
+}
+
+export interface LoginPayload {
+  identifier: string;
+  password?: string;
+}
+
+export interface LoginResponse {
+  token: string;
+  user: User;
   message: string;
-  conflict_details: {
-    conflicting_bookings_count: number;
-    conflicts: Array<{
-      booking_id: string;
-      borrower_name: string;
-      organization: string;
-      start_time: string;
-      end_time: string;
-      status: BookingStatus;
-    }>;
-  };
 }

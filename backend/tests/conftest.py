@@ -4,6 +4,7 @@ from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker
 from fastapi.testclient import TestClient
 
+from app.core.security import hash_password
 from app.database import Base, get_db
 from app.main import app
 from app.models.user import User
@@ -32,6 +33,7 @@ TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engin
 @pytest.fixture(scope="function")
 def client():
     # Setup test database file
+    Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
     init_session = TestingSessionLocal()
 
@@ -43,7 +45,8 @@ def client():
         role="ADMIN",
         organization="Bagian Fasilitas",
         phone="081111111111",
-        email="admin.test@sibiru.ac.id"
+        email="admin.test@sibiru.ac.id",
+        password_hash=hash_password("admin123")
     )
     mhs_user = User(
         id="usr_mhs_test",
@@ -52,7 +55,8 @@ def client():
         role="BORROWER",
         organization="HIMA Test",
         phone="082222222222",
-        email="mhs.test@sibiru.ac.id"
+        email="mhs.test@sibiru.ac.id",
+        password_hash=hash_password("mhs123")
     )
     init_session.add_all([admin_user, mhs_user])
 

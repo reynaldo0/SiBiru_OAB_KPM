@@ -1,121 +1,165 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { ArrowUpRight, CalendarDays, MapPin, Users } from 'lucide-react';
 import type { Room } from '../../types';
 import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
 import { BookingModal } from './BookingModal';
+import { AvailabilityTimeline } from '../timeline/AvailabilityTimeline';
 import { useRoomAvailability } from '../../hooks/use-rooms';
+import { formatDateMedium, formatRelativeDay } from '../../lib/dates';
+import { isLabRoom, roomCategory, roomImage } from '../../lib/utils';
+import { cn } from '../../lib/utils';
 
 interface RoomCardProps {
   room: Room;
   selectedDate: string;
+  index?: number;
+  className?: string;
 }
 
-export const RoomCard: React.FC<RoomCardProps> = ({ room, selectedDate }) => {
+export const RoomCard: React.FC<RoomCardProps> = ({ room, selectedDate, index, className }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { data: availability, isLoading } = useRoomAvailability(room.id, selectedDate);
+  const bookedIntervals = useMemo(
+    () => availability?.booked_intervals ?? [],
+    [availability?.booked_intervals],
+  );
 
-  const { data: availability } = useRoomAvailability(room.id, selectedDate);
-  const bookedCount = availability?.booked_intervals?.length || 0;
-
-  // Selected illustrations from MATRA reference assets
-  const illustrationMap: Record<string, string> = {
-    room_auditorium: '/assets/ilustrasi/main.webp',
-    room_lab_c201: '/assets/ilustrasi/lab-komputer.webp',
-    room_seminar_b: '/assets/ilustrasi/ruang-kuliah.webp',
-    room_rapat_senat: '/assets/ilustrasi/kenali-matra.webp',
-  };
-
-  const imageSrc =
-    room.image_url ||
-    illustrationMap[room.id] ||
-    '/assets/ilustrasi/ruang-kuliah.webp';
-
-  const isLab = room.name.toLowerCase().includes('lab');
+  const bookedCount = bookedIntervals.length;
+  const category = roomCategory(room);
+  const lab = isLabRoom(room);
 
   return (
     <>
-      <article className="editorial-facility-card group overflow-hidden flex flex-col justify-between">
-        {/* Card Media Header with MATRA frame */}
-        <div className="relative h-48 bg-gradient-to-br from-[#ECF7F5] via-[#F8FBFA] to-[#E4F0EE] overflow-hidden flex items-center justify-center p-4">
-          <img
-            src={imageSrc}
-            alt={room.name}
-            className="h-full max-h-40 w-auto object-contain drop-shadow-md group-hover:scale-105 transition-transform duration-500 relative z-10"
-            loading="lazy"
+      <article
+        className={cn(
+          'group relative flex flex-col overflow-hidden rounded-2xl border border-ink-border bg-white shadow-subtle transition-all duration-300 hover:-translate-y-0.5 hover:border-sibiru-200 hover:shadow-card',
+          !room.is_active && 'opacity-80',
+          className,
+        )}
+      >
+        <Link
+          to={`/ruangan/${room.id}`}
+          className="room-art relative flex h-44 items-center justify-center overflow-hidden px-6"
+          aria-label={`Lihat detail ${room.name}`}
+        >
+          <span
+            className="pointer-events-none absolute -left-10 -top-10 h-32 w-32 rounded-full border border-sibiru-500/10"
+            aria-hidden="true"
+          />
+          <span
+            className="pointer-events-none absolute -bottom-8 right-6 h-20 w-20 rounded-full bg-gold-400/20"
+            aria-hidden="true"
           />
 
-          {/* Decorative ring element from MATRA */}
-          <div className="absolute -top-12 -left-12 w-36 h-36 rounded-full border border-[#006569]/15 pointer-events-none" />
-          <div className="absolute -bottom-8 -right-8 w-28 h-28 rounded-full bg-[#FFDD00]/25 pointer-events-none" />
+          <img
+            src={roomImage(room)}
+            alt={room.name}
+            loading="lazy"
+            className="relative z-10 max-h-36 w-auto object-contain drop-shadow-[0_12px_20px_rgba(0,42,43,0.12)] transition-transform duration-500 group-hover:scale-[1.04]"
+          />
 
-          {/* Capacity Tag */}
-          <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-md text-[#17324D] border border-slate-200 text-xs font-semibold px-2.5 py-1 rounded-full shadow-xs z-20">
-            👥 {room.capacity} Orang
-          </div>
-
-          {/* Category Badge */}
-          <div className="absolute bottom-3 left-3 z-20">
-            <span className="text-[10px] font-bold tracking-wider uppercase bg-[#006569] text-white px-2 py-0.5 rounded-md shadow-xs">
-              {isLab ? 'PRAKTIKUM & LAB' : 'RUANG AKADEMIK'}
+          {typeof index === 'number' && (
+            <span className="absolute left-4 top-4 font-mono text-[0.625rem] font-semibold tracking-[0.18em] text-sibiru-700/60">
+              {String(index + 1).padStart(2, '0')}
             </span>
-          </div>
-        </div>
+          )}
 
-        {/* Card Body */}
-        <div className="p-5 flex-1 flex flex-col">
-          <div className="flex items-start justify-between gap-2">
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-[#006569] mb-1">
-                {isLab ? 'Laboratorium Komputer' : 'Ruang Fasilitas'}
+          <span className="absolute right-3 top-3 z-20 inline-flex items-center gap-1 rounded-full border border-ink-border bg-white/95 px-2.5 py-1 text-[0.625rem] font-semibold text-ink-heading shadow-subtle backdrop-blur">
+            <Users size={11} className="text-sibiru-500" />
+            {room.capacity} orang
+          </span>
+
+          <span className="absolute bottom-3 left-4 z-20 rounded-md bg-sibiru-600 px-2 py-1 text-[0.5625rem] font-bold uppercase tracking-[0.12em] text-white">
+            {lab ? 'Laboratorium' : category}
+          </span>
+
+          {!room.is_active && (
+            <span className="absolute inset-x-0 bottom-0 z-20 bg-ink-heading/80 py-1 text-center text-[0.5625rem] font-bold uppercase tracking-[0.14em] text-white">
+              Ruangan nonaktif
+            </span>
+          )}
+        </Link>
+
+        <div className="flex flex-1 flex-col p-5">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <p className="text-[0.5625rem] font-bold uppercase tracking-[0.16em] text-sibiru-600">
+                {category}
               </p>
-              <h3 className="font-bold text-base text-[#17324D] group-hover:text-[#006569] transition-colors leading-snug">
-                {room.name}
+              <h3 className="mt-1 text-[0.9375rem] font-bold leading-snug text-ink-heading">
+                <Link
+                  to={`/ruangan/${room.id}`}
+                  className="transition-colors hover:text-sibiru-600 focus-visible:outline-none"
+                >
+                  {room.name}
+                </Link>
               </h3>
-              <p className="text-xs text-slate-500 mt-1 flex items-center gap-1">
-                <span>📍</span> {room.location}
+              <p className="mt-1 flex items-center gap-1 text-[0.6875rem] text-ink-muted">
+                <MapPin size={11} className="shrink-0" />
+                <span className="truncate">{room.location}</span>
               </p>
             </div>
 
-            {/* Status indicator pill */}
-            <div>
-              {bookedCount === 0 ? (
-                <Badge variant="approved">Tersedia</Badge>
-              ) : (
-                <Badge variant="pending">{bookedCount} Terjadwal</Badge>
-              )}
-            </div>
+            <Badge
+              variant={!room.is_active ? 'inactive' : bookedCount === 0 ? 'approved' : 'pending'}
+              className="shrink-0"
+            >
+              {!room.is_active ? 'Nonaktif' : bookedCount === 0 ? 'Tersedia' : `${bookedCount} agenda`}
+            </Badge>
           </div>
 
-          {/* Facility Chips */}
-          <div className="mt-4 flex flex-wrap gap-1.5 flex-1">
-            {room.facilities.slice(0, 3).map((facility, idx) => (
-              <span
-                key={idx}
-                className="inline-flex items-center text-[11px] font-medium px-2 py-0.5 rounded-md bg-[#F2F5F7] text-[#334155] border border-slate-200/80"
-              >
+          <div className="mt-3.5 flex flex-wrap gap-1.5">
+            {room.facilities.slice(0, 3).map((facility) => (
+              <span key={facility} className="chip">
                 {facility}
               </span>
             ))}
             {room.facilities.length > 3 && (
-              <span className="inline-flex items-center text-[10px] text-slate-500 px-1.5 py-0.5">
-                +{room.facilities.length - 3} lagi
-              </span>
+              <span className="chip border-dashed text-ink-muted">+{room.facilities.length - 3}</span>
             )}
           </div>
 
-          {/* Footer Card Action */}
-          <div className="mt-5 pt-3 border-t border-slate-100 flex items-center justify-between">
-            <span className="text-[11px] text-slate-500 font-mono">
-              {selectedDate}
-            </span>
+          <div className="mt-4">
+            <div className="mb-1.5 flex items-center justify-between gap-2">
+              <span className="inline-flex items-center gap-1 text-[0.5625rem] font-bold uppercase tracking-[0.12em] text-ink-muted">
+                <CalendarDays size={10} />
+                {formatRelativeDay(selectedDate)}
+              </span>
+              <span className="font-mono text-[0.5625rem] text-ink-muted">
+                {formatDateMedium(selectedDate)}
+              </span>
+            </div>
+            <AvailabilityTimeline
+              date={selectedDate}
+              bookedIntervals={bookedIntervals}
+              isLoading={isLoading}
+              compact
+              className="border-ink-border/80"
+            />
+          </div>
+
+          <div className="mt-4 flex items-center justify-between gap-2 border-t border-ink-border/70 pt-3.5">
+            <Link
+              to={`/ruangan/${room.id}`}
+              className="group/link inline-flex items-center gap-1 text-[0.6875rem] font-semibold text-ink-muted transition-colors hover:text-sibiru-600"
+            >
+              Lihat detail
+              <ArrowUpRight
+                size={13}
+                className="transition-transform group-hover/link:-translate-y-0.5 group-hover/link:translate-x-0.5"
+              />
+            </Link>
 
             <Button
-              variant="outline"
               size="sm"
+              variant="outline"
               disabled={!room.is_active}
               onClick={() => setIsModalOpen(true)}
-              className="text-xs group-hover:bg-[#006569] group-hover:text-white group-hover:border-[#006569]"
+              className="group-hover:border-sibiru-300 group-hover:bg-sibiru-50"
             >
-              Cek & Ajukan →
+              Ajukan
             </Button>
           </div>
         </div>

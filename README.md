@@ -10,17 +10,19 @@ Proyek ini telah distrukturisasi ke dalam folder terpisah untuk dokumentasi, fro
 
 ```
 SiBiru_OAB_KPM/
-├── docs/                   # 📄 Dokumentasi teknis, desain, dan roadmap (di-gitignore)
-│   ├── DESIGN.md           # Standar visual antarmuka Pine Teal (#006569) & Amber, Anti AI-Slop
-│   ├── ROADMAP.md          # Tahapan implementasi frontend (Phase 0 – Phase 6)
-│   └── DOKUMENTASI.md      # Dokumentasi teknis lengkap arsitektur backend & PRD
+├── DESIGN.md               # 🎨 Sumber kebenaran sistem desain (warna, tipografi, motion, komponen)
+├── ROADMAP.md              # 🗺️ Roadmap frontend, matriks uji, dan backlog pasca-MVP
+├── docs/                   # 📄 Dokumentasi teknis backend & PRD (di-gitignore)
+│   └── DOKUMENTASI.md      # Arsitektur backend, conflict detection, skema database
 │
 ├── frontend/               # 💻 Aplikasi antarmuka pengguna (React 19, TypeScript, Tailwind)
 │   ├── src/
-│   │   ├── app/            # Halaman & Navigasi
-│   │   ├── components/     # UI Primitives, Scrubber Waktu, Kartu Ruangan
+│   │   ├── app/            # Router, shell publik/admin, route guard
+│   │   ├── pages/          # Halaman publik & halaman admin
+│   │   ├── components/     # UI primitives, layout, booking, timeline, admin
+│   │   ├── hooks/          # React Query hooks per domain
 │   │   ├── services/       # Client API terhubung ke backend FastAPI
-│   │   ├── store/          # Zustand store & Floating demo role switcher
+│   │   ├── store/          # Zustand auth store & sesi persisten
 │   │   ├── types/          # Definisi TypeScript sinkron dengan backend
 │   │   └── styles/         # Global styles & token Pine Teal (#006569)
 │   ├── package.json
@@ -38,6 +40,7 @@ SiBiru_OAB_KPM/
 │   ├── run.bat / run.ps1   # Runner otomatis server backend
 │   └── README.md           # Panduan spesifik backend
 │
+├── MATRA/                  # 🖼️ Referensi visual & fitur (bukan bagian aplikasi)
 ├── .gitignore              # Mengabaikan docs/, node_modules/, *.db, .venv/
 └── README.md               # Ringkasan utama repositori
 ```
@@ -94,9 +97,25 @@ Sistem telah dilengkapi dengan data awal (*pre-seeded data*) untuk tiga persona 
 
 ---
 
-## 📚 Referensi Spesifikasi & Dokumentasi Lengkap
+## 📚 Referensi Spesifikasi & Dokumentasi
 
-Seluruh dokumen spesifikasi mendalam tersimpan rapi di dalam direktori `docs/`:
-- **[DESIGN.md](file:///c:/Projects/SiBiru_OAB_KPM/docs/DESIGN.md)**: Panduan sistem desain antarmuka, warna *Pine Teal* `#006569` & aksen *Amber Gold*, motion physics, dan blueprint visual halaman.
-- **[ROADMAP.md](file:///c:/Projects/SiBiru_OAB_KPM/docs/ROADMAP.md)**: Roadmap teknis pengembangan frontend 7 fase terstruktur.
-- **[DOKUMENTASI.md](file:///c:/Projects/SiBiru_OAB_KPM/docs/DOKUMENTASI.md)**: Dokumentasi arsitektur sistem backend, algoritma conflict detection, dan skema database.
+- **[DESIGN.md](DESIGN.md)**: sistem desain SIBIRU — palet *Pine Teal* `#006569` + *Warm Gold*,
+  tipografi editorial, komponen, motion, blueprint halaman, dan checklist anti-AI-slop.
+- **[ROADMAP.md](ROADMAP.md)**: roadmap frontend per fase, arsitektur, rute, kontrak API,
+  matriks uji manual, risiko, dan backlog pasca-MVP.
+- **[docs/DOKUMENTASI.md](docs/DOKUMENTASI.md)**: dokumentasi arsitektur backend, algoritma
+  *conflict detection*, dan skema database.
+
+### Peta rute frontend
+
+| Rute | Akses | Keterangan |
+| --- | --- | --- |
+| `/` | Publik | Beranda editorial & ruang pilihan |
+| `/katalog` | Publik | Katalog ruangan, filter, dan timeline ketersediaan |
+| `/ruangan/:roomId` | Publik | Detail ruang & pemilihan slot |
+| `/pengajuan-saya` | Login | Riwayat dan status pengajuan |
+| `/login` | Publik | Masuk identitas atau akun demo |
+| `/admin` | Admin | Ringkasan operasional |
+| `/admin/antrean` | Admin | Antrean pengajuan & keputusan |
+| `/admin/jadwal` | Admin | Matriks jadwal mingguan |
+| `/admin/ruangan` | Admin | Master ruangan |

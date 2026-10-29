@@ -1,36 +1,53 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   adminService,
   type AdminBookingsFilter,
   type CreateRoomPayload,
   type UpdateRoomPayload,
 } from '../services/admin.service';
+import { useAuthStore } from '../store/auth.store';
 
 export const adminKeys = {
-  metrics: ['admin', 'metrics'] as const,
-  bookings: (filters?: AdminBookingsFilter) => ['admin', 'bookings', filters] as const,
-  schedule: (startDate: string, endDate: string) => ['admin', 'schedule', startDate, endDate] as const,
+  metrics: (userId: string | null) => ['admin', 'metrics', userId ?? 'anonymous'] as const,
+  bookings: (userId: string | null, filters?: AdminBookingsFilter) =>
+    ['admin', 'bookings', userId ?? 'anonymous', filters ?? {}] as const,
+  schedule: (userId: string | null, startDate: string, endDate: string) =>
+    ['admin', 'schedule', userId ?? 'anonymous', startDate, endDate] as const,
 };
 
 export function useAdminMetrics() {
+  const userId = useAuthStore((state) => state.user?.id);
+
   return useQuery({
-    queryKey: adminKeys.metrics,
+    queryKey: adminKeys.metrics(userId ?? null),
     queryFn: () => adminService.getMetrics(),
+    enabled: Boolean(userId),
+    staleTime: 0,
+    refetchInterval: 3000,
   });
 }
 
-export function useAdminBookings(filters?: AdminBookingsFilter) {
+export function useAdminBookings(filters?: AdminBookingsFilter, options?: { enabled?: boolean }) {
+  const userId = useAuthStore((state) => state.user?.id);
+
   return useQuery({
-    queryKey: adminKeys.bookings(filters),
+    queryKey: adminKeys.bookings(userId ?? null, filters),
     queryFn: () => adminService.getBookings(filters),
+    enabled: Boolean(userId) && (options?.enabled ?? true),
+    staleTime: 0,
+    refetchInterval: 3000,
   });
 }
 
 export function useMasterSchedule(startDate: string, endDate: string) {
+  const userId = useAuthStore((state) => state.user?.id);
+
   return useQuery({
-    queryKey: adminKeys.schedule(startDate, endDate),
+    queryKey: adminKeys.schedule(userId ?? null, startDate, endDate),
     queryFn: () => adminService.getSchedule(startDate, endDate),
-    enabled: Boolean(startDate && endDate),
+    enabled: Boolean(userId && startDate && endDate),
+    staleTime: 0,
+    refetchInterval: 4000,
   });
 }
 
@@ -48,11 +65,9 @@ export function useUpdateBookingStatus() {
       rejection_reason?: string;
     }) => adminService.updateBookingStatus(id, status, rejection_reason),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin', 'metrics'] });
-      queryClient.invalidateQueries({ queryKey: ['admin', 'bookings'] });
-      queryClient.invalidateQueries({ queryKey: ['admin', 'schedule'] });
+      queryClient.invalidateQueries({ queryKey: ['admin'] });
       queryClient.invalidateQueries({ queryKey: ['rooms', 'availability'] });
-      queryClient.invalidateQueries({ queryKey: ['bookings', 'my'] });
+      queryClient.invalidateQueries({ queryKey: ['bookings'] });
     },
   });
 }
@@ -65,7 +80,7 @@ export function useToggleRoomStatus() {
       adminService.toggleRoomStatus(id, is_active),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['rooms'] });
-      queryClient.invalidateQueries({ queryKey: ['admin', 'metrics'] });
+      queryClient.invalidateQueries({ queryKey: ['admin'] });
     },
   });
 }
@@ -77,7 +92,7 @@ export function useCreateRoom() {
     mutationFn: (payload: CreateRoomPayload) => adminService.createRoom(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['rooms'] });
-      queryClient.invalidateQueries({ queryKey: ['admin', 'metrics'] });
+      queryClient.invalidateQueries({ queryKey: ['admin'] });
     },
   });
 }
@@ -90,7 +105,19 @@ export function useUpdateRoom() {
       adminService.updateRoom(id, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['rooms'] });
-      queryClient.invalidateQueries({ queryKey: ['admin', 'metrics'] });
+      queryClient.invalidateQueries({ queryKey: ['admin'] });
+    },
+  });
+}
+
+export function useDeleteRoom() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => adminService.deleteRoom(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['rooms'] });
+      queryClient.invalidateQueries({ queryKey: ['admin'] });
     },
   });
 }

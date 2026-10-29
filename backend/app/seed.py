@@ -3,6 +3,7 @@ from app.database import SessionLocal, engine, Base
 from app.models.user import User
 from app.models.room import Room, RoomFacility
 from app.models.booking import Booking
+from app.core.security import hash_password
 
 
 def seed_database():
@@ -11,7 +12,22 @@ def seed_database():
     db = SessionLocal()
 
     try:
-        # Cek apakah sudah ada data
+        # Update kata sandi demo pengguna jika belum ada
+        admin_u = db.query(User).filter(User.id == "usr_admin_01").first()
+        if admin_u and not admin_u.password_hash:
+            admin_u.password_hash = hash_password("admin123")
+
+        mhs_u = db.query(User).filter(User.id == "usr_mhs_01").first()
+        if mhs_u and not mhs_u.password_hash:
+            mhs_u.password_hash = hash_password("mhs123")
+
+        dosen_u = db.query(User).filter(User.id == "usr_dosen_01").first()
+        if dosen_u and not dosen_u.password_hash:
+            dosen_u.password_hash = hash_password("dosen123")
+
+        db.commit()
+
+        # Cek apakah sudah ada data ruangan
         if db.query(User).count() > 0:
             print("[SEED] Database sudah memiliki data, melewatkan seeding.")
             return
@@ -26,7 +42,8 @@ def seed_database():
             role="ADMIN",
             organization="Bagian Fasilitas & Sarpras Kampus",
             phone="081234567890",
-            email="admin.fasilitas@kampus.ac.id"
+            email="admin.fasilitas@kampus.ac.id",
+            password_hash=hash_password("admin123")
         )
 
         user_mhs = User(
@@ -36,7 +53,8 @@ def seed_database():
             role="BORROWER",
             organization="HIMA Informatika",
             phone="081987654321",
-            email="ahmad.zaki@student.kampus.ac.id"
+            email="ahmad.zaki@student.kampus.ac.id",
+            password_hash=hash_password("mhs123")
         )
 
         user_dosen = User(
@@ -46,7 +64,8 @@ def seed_database():
             role="BORROWER",
             organization="Prodi Sistem Informasi",
             phone="081345678901",
-            email="siti.rahma@dosen.kampus.ac.id"
+            email="siti.rahma@dosen.kampus.ac.id",
+            password_hash=hash_password("dosen123")
         )
 
         db.add_all([user_admin, user_mhs, user_dosen])
@@ -105,61 +124,57 @@ def seed_database():
         # 3. Buat Booking Dummy
         today = date.today()
         tomorrow = today + timedelta(days=1)
-        next_week = today + timedelta(days=3)
+        three_days_later = today + timedelta(days=3)
 
-        bookings_data = [
-            # 1: Disetujui (Approved) - Auditorium besok jam 09:00 - 12:00
-            Booking(
-                id="book_sample_01",
-                room_id="room_auditorium",
-                user_id="usr_mhs_01",
-                borrower_name="Ahmad Zaki",
-                organization="HIMA Informatika",
-                purpose="Seminar Nasional Artificial Intelligence & Future Tech",
-                booking_date=tomorrow,
-                start_time=time(9, 0),
-                end_time=time(12, 0),
-                status="APPROVED",
-                rejection_reason=None
-            ),
-            # 2: Menunggu Persetujuan (Pending) - Lab Komputer besok jam 13:00 - 16:00
-            Booking(
-                id="book_sample_02",
-                room_id="room_lab_c201",
-                user_id="usr_mhs_01",
-                borrower_name="Ahmad Zaki",
-                organization="HIMA Informatika",
-                purpose="Workshop Hands-on Cloud Native Architecture",
-                booking_date=tomorrow,
-                start_time=time(13, 0),
-                end_time=time(16, 0),
-                status="PENDING",
-                rejection_reason=None
-            ),
-            # 3: Ditolak (Rejected) - Ruang Rapat Senat
-            Booking(
-                id="book_sample_03",
-                room_id="room_rapat_senat",
-                user_id="usr_dosen_01",
-                borrower_name="Dr. Siti Rahma, M.T.",
-                organization="Prodi Sistem Informasi",
-                purpose="Rapat Koordinasi Akreditasi Program Studi",
-                booking_date=next_week,
-                start_time=time(10, 0),
-                end_time=time(12, 0),
-                status="REJECTED",
-                rejection_reason="Ruangan telah dipesan untuk Rapat Pimpinan Universitas di slot waktu tersebut."
-            )
-        ]
+        sample_booking_1 = Booking(
+            id="book_sample_01",
+            room_id="room_auditorium",
+            user_id="usr_mhs_01",
+            borrower_name="Ahmad Zaki",
+            organization="HIMA Informatika",
+            purpose="Seminar Nasional Artificial Intelligence dan Masa Depan Industri",
+            booking_date=tomorrow,
+            start_time=time(9, 0),
+            end_time=time(12, 0),
+            status="APPROVED",
+            rejection_reason=None
+        )
 
-        db.add_all(bookings_data)
+        sample_booking_2 = Booking(
+            id="book_sample_02",
+            room_id="room_lab_c201",
+            user_id="usr_mhs_01",
+            borrower_name="Ahmad Zaki",
+            organization="HIMA Informatika",
+            purpose="Pelatihan Praktikum Cloud Architecture untuk Anggota Baru",
+            booking_date=tomorrow,
+            start_time=time(13, 0),
+            end_time=time(16, 0),
+            status="PENDING",
+            rejection_reason=None
+        )
+
+        sample_booking_3 = Booking(
+            id="book_sample_03",
+            room_id="room_rapat_senat",
+            user_id="usr_dosen_01",
+            borrower_name="Dr. Siti Rahma, M.T.",
+            organization="Prodi Sistem Informasi",
+            purpose="Rapat Koordinasi Evaluasi Kurikulum Berbasis OBE Semester Ganjil",
+            booking_date=three_days_later,
+            start_time=time(10, 0),
+            end_time=time(12, 0),
+            status="REJECTED",
+            rejection_reason="Ruangan telah dialokasikan terlebih dahulu untuk Rapat Pleno Rektorat yang bersifat mendesak."
+        )
+
+        db.add_all([sample_booking_1, sample_booking_2, sample_booking_3])
         db.commit()
         print("[SEED] Seeding berhasil diselesaikan!")
 
     except Exception as e:
         db.rollback()
-        print(f"[SEED] Gagal melakukan seeding: {e}")
-        raise e
+        print(f"[SEED] Gagal menyuntikkan data: {e}")
     finally:
         db.close()
 

@@ -19,6 +19,7 @@ class User(Base):
     organization = Column(String(100), nullable=False)  # HIMA, UKM, Prodi, Unit Kerja
     phone = Column(String(25), nullable=True)
     email = Column(String(100), nullable=True)
+    password_hash = Column(String(255), nullable=True)  # Hash kata sandi
     created_at = Column(DateTime, default=utc_now)
 
     bookings = relationship("Booking", back_populates="user", cascade="all, delete-orphan")

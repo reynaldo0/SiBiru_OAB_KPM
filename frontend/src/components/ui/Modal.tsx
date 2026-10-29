@@ -1,4 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
+import { AnimatePresence, motion } from 'framer-motion';
+import { X } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
 interface ModalProps {
@@ -7,8 +10,18 @@ interface ModalProps {
   title: string;
   description?: string;
   children: React.ReactNode;
-  maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl';
+  maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl';
+  eyebrow?: string;
 }
+
+const maxWidths = {
+  sm: 'max-w-sm',
+  md: 'max-w-md',
+  lg: 'max-w-lg',
+  xl: 'max-w-xl',
+  '2xl': 'max-w-2xl',
+  '3xl': 'max-w-3xl',
+};
 
 export const Modal: React.FC<ModalProps> = ({
   isOpen,
@@ -17,64 +30,122 @@ export const Modal: React.FC<ModalProps> = ({
   description,
   children,
   maxWidth = 'lg',
+  eyebrow,
 }) => {
+  const panelRef = useRef<HTMLDivElement>(null);
+  const previouslyFocused = useRef<HTMLElement | null>(null);
+
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) {
+    if (!isOpen) return;
+
+    previouslyFocused.current = document.activeElement as HTMLElement | null;
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
         onClose();
+        return;
+      }
+
+      if (event.key !== 'Tab' || !panelRef.current) return;
+
+      const focusable = panelRef.current.querySelectorAll<HTMLElement>(
+        'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      );
+      if (focusable.length === 0) return;
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
       }
     };
+
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    const focusTimer = window.setTimeout(() => {
+      const target = panelRef.current?.querySelector<HTMLElement>(
+        'input, textarea, select, button:not([data-close])',
+      );
+      target?.focus();
+    }, 80);
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
+      window.clearTimeout(focusTimer);
+      previouslyFocused.current?.focus();
+    };
   }, [isOpen, onClose]);
 
-  if (!isOpen) return null;
+  if (typeof document === 'undefined') return null;
 
-  const maxWidths = {
-    sm: 'max-w-sm',
-    md: 'max-w-md',
-    lg: 'max-w-lg',
-    xl: 'max-w-xl',
-    '2xl': 'max-w-2xl',
-  };
+  return createPortal(
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-[80] overflow-y-auto">
+          <motion.div
+            key="backdrop"
+            className="fixed inset-0 bg-sibiru-950/45 backdrop-blur-[3px]"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            onClick={onClose}
+            aria-hidden="true"
+          />
 
-  return (
-    <div className="fixed inset-0 z-50 overflow-y-auto">
-      {/* Backdrop */}
-      <div
-        className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity"
-        onClick={onClose}
-      />
-
-      <div className="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-        <div
-          className={cn(
-            'relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl transition-all sm:my-8 w-full border border-slate-200',
-            maxWidths[maxWidth]
-          )}
-        >
-          {/* Header */}
-          <div className="border-b border-slate-100 px-6 py-4 flex items-center justify-between bg-slate-50/60">
-            <div>
-              <h3 className="text-lg font-semibold text-slate-900 leading-tight">{title}</h3>
-              {description && (
-                <p className="text-xs text-slate-500 mt-0.5">{description}</p>
+          <div className="flex min-h-full items-end justify-center p-0 sm:items-center sm:p-6">
+            <motion.div
+              key="panel"
+              ref={panelRef}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="modal-title"
+              className={cn(
+                'relative z-10 w-full overflow-hidden rounded-t-3xl border border-ink-border bg-white shadow-lift sm:rounded-2xl',
+                maxWidths[maxWidth],
               )}
-            </div>
-            <button
-              onClick={onClose}
-              className="text-slate-400 hover:text-slate-600 rounded-lg p-1.5 hover:bg-slate-100 transition-colors"
+              initial={{ opacity: 0, y: 28, scale: 0.985 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 18, scale: 0.99 }}
+              transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
             >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
+              <div className="flex items-start justify-between gap-4 border-b border-ink-border/80 px-5 py-4 sm:px-6">
+                <div className="min-w-0">
+                  {eyebrow && <p className="eyebrow mb-1.5 text-[0.625rem]">{eyebrow}</p>}
+                  <h2 id="modal-title" className="text-base font-bold leading-snug text-ink-heading">
+                    {title}
+                  </h2>
+                  {description && (
+                    <p className="mt-1 text-xs leading-relaxed text-ink-muted">{description}</p>
+                  )}
+                </div>
+                <button
+                  type="button"
+                  data-close
+                  onClick={onClose}
+                  className="shrink-0 rounded-lg p-1.5 text-ink-muted transition-colors hover:bg-ink-soft hover:text-ink-heading"
+                  aria-label="Tutup dialog"
+                >
+                  <X size={18} />
+                </button>
+              </div>
 
-          {/* Body */}
-          <div className="px-6 py-5">{children}</div>
+              <div className="max-h-[calc(100vh-10rem)] overflow-y-auto px-5 py-5 sm:px-6">
+                {children}
+              </div>
+            </motion.div>
+          </div>
         </div>
-      </div>
-    </div>
+      )}
+    </AnimatePresence>,
+    document.body,
   );
 };

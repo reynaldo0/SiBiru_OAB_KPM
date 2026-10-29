@@ -1,31 +1,63 @@
 import { create } from 'zustand';
+import { AUTH_TOKEN_KEY } from '../lib/constants';
 import type { User } from '../types';
 
+export type AuthStatus = 'idle' | 'loading' | 'authenticated' | 'unauthenticated';
+
 interface AuthState {
-  currentUser: User | null;
-  activeToken: string;
-  setUser: (user: User, token: string) => void;
-  switchDemoUser: (token: string) => void;
-  clearUser: () => void;
+  token: string | null;
+  user: User | null;
+  authStatus: AuthStatus;
+  setSession: (token: string, user: User) => void;
+  setUser: (user: User) => void;
+  beginSession: (token: string) => void;
+  setStatus: (status: AuthStatus) => void;
+  clearSession: () => void;
 }
 
-const DEFAULT_DEMO_TOKEN = 'usr_mhs_01'; // Default: Ahmad Zaki (Mahasiswa)
+function readStoredToken(): string | null {
+  try {
+    return localStorage.getItem(AUTH_TOKEN_KEY);
+  } catch {
+    return null;
+  }
+}
+
+const initialToken = readStoredToken();
 
 export const useAuthStore = create<AuthState>((set) => ({
-  currentUser: null,
-  activeToken: localStorage.getItem('sibiru_user_id') || DEFAULT_DEMO_TOKEN,
-  setUser: (user, token) => {
-    localStorage.setItem('sibiru_user_id', token);
-    set({ currentUser: user, activeToken: token });
+  token: initialToken,
+  user: null,
+  authStatus: initialToken ? 'loading' : 'unauthenticated',
+
+  setSession: (token, user) => {
+    try {
+      localStorage.setItem(AUTH_TOKEN_KEY, token);
+    } catch {
+      // Local storage can be unavailable in private browsing; the session still works in memory.
+    }
+    set({ token, user, authStatus: 'authenticated' });
   },
-  switchDemoUser: (token) => {
-    localStorage.setItem('sibiru_user_id', token);
-    set({ activeToken: token });
-    // Invalidate / refresh data sesuai user aktif
-    window.location.reload();
+
+  setUser: (user) => set({ user, authStatus: 'authenticated' }),
+
+  beginSession: (token) => {
+    try {
+      localStorage.setItem(AUTH_TOKEN_KEY, token);
+    } catch {
+      // Ignore storage failures.
+    }
+    set({ token, user: null, authStatus: 'loading' });
   },
-  clearUser: () => {
-    localStorage.removeItem('sibiru_user_id');
-    set({ currentUser: null, activeToken: '' });
+
+  setStatus: (authStatus) => set({ authStatus }),
+
+  clearSession: () => {
+    try {
+      localStorage.removeItem(AUTH_TOKEN_KEY);
+    } catch {
+      // Ignore storage failures.
+    }
+    set({ token: null, user: null, authStatus: 'unauthenticated' });
   },
 }));

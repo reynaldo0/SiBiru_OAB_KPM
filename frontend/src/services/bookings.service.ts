@@ -1,3 +1,4 @@
+import { buildQuery } from '../lib/utils';
 import { apiRequest } from './api-client';
 import type { Booking, BookingStatus } from '../types';
 
@@ -6,8 +7,8 @@ export interface CreateBookingPayload {
   organization: string;
   purpose: string;
   booking_date: string; // YYYY-MM-DD
-  start_time: string;   // HH:MM
-  end_time: string;     // HH:MM
+  start_time: string; // HH:MM
+  end_time: string; // HH:MM
 }
 
 export const bookingsService = {
@@ -19,8 +20,7 @@ export const bookingsService = {
   },
 
   getMyBookings: async (status?: BookingStatus): Promise<Booking[]> => {
-    const endpoint = status ? `/bookings/my?status=${status}` : '/bookings/my';
-    return apiRequest<Booking[]>(endpoint);
+    return apiRequest<Booking[]>(`/bookings/my${buildQuery({ status })}`);
   },
 
   getBookingDetail: async (id: string): Promise<Booking> => {

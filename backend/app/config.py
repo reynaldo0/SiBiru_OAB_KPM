@@ -8,8 +8,8 @@ class Settings(BaseSettings):
     VERSION: str = "1.0.0"
     API_V1_PREFIX: str = "/api/v1"
     
-    # Database
-    DATABASE_URL: str = "sqlite:///./sibiru.db"
+    # Database - Default MySQL Laragon (port 3306, user root, tanpa password)
+    DATABASE_URL: str = "mysql+pymysql://root:@127.0.0.1:3306/sibiru?charset=utf8mb4"
     
     # CORS
     CORS_ORIGINS: List[str] = ["*"]

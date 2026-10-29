@@ -11,6 +11,16 @@ from app.routers import auth_router, rooms_router, bookings_router, admin_router
 async def lifespan(app: FastAPI):
     # Startup: Pastikan tabel terbuat & data awal disuntikkan
     Base.metadata.create_all(bind=engine)
+    if settings.DATABASE_URL.startswith("sqlite"):
+        try:
+            with engine.connect() as conn:
+                cols = [c[1] for c in conn.exec_driver_sql("PRAGMA table_info(users)").fetchall()]
+                if "password_hash" not in cols:
+                    conn.exec_driver_sql("ALTER TABLE users ADD COLUMN password_hash VARCHAR(255) DEFAULT NULL")
+                    conn.commit()
+        except Exception as e:
+            print(f"[MIGRATION] Kolom password_hash: {e}")
+
     seed_database()
     yield
     # Shutdown logic jika diperlukan

@@ -1,3 +1,4 @@
+import { buildQuery } from '../lib/utils';
 import { apiRequest } from './api-client';
 import type { Room, RoomAvailability } from '../types';
 
@@ -9,20 +10,12 @@ export interface GetRoomsParams {
 
 export const roomsService = {
   getRooms: async (params?: GetRoomsParams): Promise<Room[]> => {
-    const searchParams = new URLSearchParams();
-    if (params?.is_active_only !== undefined) {
-      searchParams.set('is_active_only', String(params.is_active_only));
-    }
-    if (params?.min_capacity !== undefined) {
-      searchParams.set('min_capacity', String(params.min_capacity));
-    }
-    if (params?.search) {
-      searchParams.set('search', params.search);
-    }
-
-    const query = searchParams.toString();
-    const endpoint = `/rooms${query ? `?${query}` : ''}`;
-    return apiRequest<Room[]>(endpoint);
+    const query = buildQuery({
+      is_active_only: params?.is_active_only,
+      min_capacity: params?.min_capacity,
+      search: params?.search,
+    });
+    return apiRequest<Room[]>(`/rooms${query}`);
   },
 
   getRoomDetail: async (id: string): Promise<Room> => {
@@ -30,6 +23,6 @@ export const roomsService = {
   },
 
   getRoomAvailability: async (id: string, date: string): Promise<RoomAvailability> => {
-    return apiRequest<RoomAvailability>(`/rooms/${id}/availability?date=${date}`);
+    return apiRequest<RoomAvailability>(`/rooms/${id}/availability${buildQuery({ date })}`);
   },
 };
