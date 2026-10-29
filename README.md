@@ -1,121 +1,90 @@
 # 🏛️ SIBIRU — Sistem Informasi Peminjaman Ruangan Internal
 
-> Solusi terintegrasi pengelolaan dan reservasi ruangan kampus bebas tumpang tindih waktu (*zero double-booking*) dengan arsitektur modern **FastAPI (Backend)** dan **React 19 + TypeScript + Tailwind CSS (Frontend)**.
+> Solusi terintegrasi pengelolaan dan reservasi ruangan kampus bebas tumpang tindih waktu (*zero double-booking*) dengan arsitektur modern **FastAPI + MySQL Laragon (Backend)** dan **React 19 + TypeScript + Tailwind CSS (Frontend)**.
 
 ---
 
-## 📁 Struktur Direktori Repositori
+## ⚡ Command CLI SIBIRU (Cara Tercepat Menjalankan)
 
-Proyek ini telah distrukturisasi ke dalam folder terpisah untuk dokumentasi, frontend, dan backend:
+Proyek ini telah dilengkapi dengan antarmuka baris perintah (**SIBIRU CLI**) terpadu. Anda cukup menjalankan perintah dari terminal root proyek:
+
+| Perintah CLI | Alternatif (NPM) | Keterangan |
+|---|---|---|
+| `.\sibiru start` | `npm start` / `npm run dev` | **Menjalankan Backend & Frontend sekaligus** di jendela terpisah |
+| `.\sibiru backend` | `npm run backend` | Menjalankan service backend FastAPI (Port `8000`) |
+| `.\sibiru frontend` | `npm run frontend` | Menjalankan aplikasi frontend Vite/React (Port `3000`) |
+| `.\sibiru status` | `npm run status` | **Memeriksa status** koneksi MySQL Laragon (Port `3306`), Backend, dan Frontend |
+| `.\sibiru seed` | `npm run seed` | Membuat tabel & menabur data awal (*seed*) ke MySQL Laragon |
+| `.\sibiru test` | `npm run test` | Menjalankan seluruh 26 automated unit & integration test suites |
+
+> **Catatan:** Di Command Prompt (CMD), Anda cukup mengetik `sibiru start`. Di PowerShell, gunakan `.\sibiru start` atau `python cli.py start`.
+
+---
+
+## 🌐 Alamat Layanan & Akses
+
+* **Frontend Web Application**: [http://localhost:3000](http://localhost:3000)
+* **Backend REST API Documentation (Swagger)**: [http://localhost:8000/docs](http://localhost:8000/docs)
+* **ReDoc Technical Specification**: [http://localhost:8000/redoc](http://localhost:8000/redoc)
+* **Database Server**: MySQL Laragon pada `127.0.0.1:3306` (Database: `sibiru`)
+
+---
+
+## 🔑 Kredensial Akun Percobaan (Demo Data)
+
+Autentikasi menggunakan verifikasi nyata kata sandi ter-hash SHA-256 + salt pada database MySQL:
+
+| Peran Akun | Nama Pengguna | NIM / NIP | Kata Sandi | Hak Akses |
+|---|---|---|---|---|
+| **Pengelola (Admin)** | Drs. Hendro Wibowo, M.T. | `197905202008011002` | `admin123` | Portal pengelola, verifikasi persetujuan/penolakan, master jadwal, CRUD fasilitas |
+| **Mahasiswa** | Rian Pratama | `2101001` | `mhs123` | Katalog ruangan, pengajuan slot waktu, pemantauan status pengajuan |
+| **Dosen Pembina** | Dr. Sri Wahyuni, M.Kom. | `198501152010122001` | `dosen123` | Peminjaman ruang rapat senat, auditorium, dan laboratorium |
+
+> **Pendaftaran Akun Baru**: Pengguna juga dapat langsung mendaftar melalui menu **Daftar Akun Baru** pada halaman login. Data langsung tersimpan di MySQL.
+
+---
+
+## 📁 Struktur Direktori Monorepo
 
 ```
 SiBiru_OAB_KPM/
-├── DESIGN.md               # 🎨 Sumber kebenaran sistem desain (warna, tipografi, motion, komponen)
-├── ROADMAP.md              # 🗺️ Roadmap frontend, matriks uji, dan backlog pasca-MVP
-├── docs/                   # 📄 Dokumentasi teknis backend & PRD (di-gitignore)
-│   └── DOKUMENTASI.md      # Arsitektur backend, conflict detection, skema database
+├── cli.py                  # 💻 Core script SIBIRU CLI Python
+├── sibiru.cmd / sibiru.bat # ⚡ Launcher CLI untuk Command Prompt Windows
+├── sibiru.ps1              # ⚡ Launcher CLI untuk Windows PowerShell
+├── package.json            # 📦 Root npm scripts (npm start, npm run backend, etc.)
+├── run_all.bat             # 🚀 Shortcut 1-klik buka backend + frontend
+├── run_backend.bat         # ⚙️ Shortcut jalankan backend saja
+├── run_frontend.bat        # 🎨 Shortcut jalankan frontend saja
 │
-├── frontend/               # 💻 Aplikasi antarmuka pengguna (React 19, TypeScript, Tailwind)
-│   ├── src/
-│   │   ├── app/            # Router, shell publik/admin, route guard
-│   │   ├── pages/          # Halaman publik & halaman admin
-│   │   ├── components/     # UI primitives, layout, booking, timeline, admin
-│   │   ├── hooks/          # React Query hooks per domain
-│   │   ├── services/       # Client API terhubung ke backend FastAPI
-│   │   ├── store/          # Zustand auth store & sesi persisten
-│   │   ├── types/          # Definisi TypeScript sinkron dengan backend
-│   │   └── styles/         # Global styles & token Pine Teal (#006569)
-│   ├── package.json
-│   ├── tailwind.config.ts
-│   └── vite.config.ts
+├── docs/                   # 📄 Dokumentasi & spesifikasi (di-gitignore)
+│   ├── DOKUMENTASI.md      # Arsitektur backend, conflict detection, skema DB
+│   ├── DESIGN.md           # Sistem desain visual, palet #006569, token UI
+│   └── ROADMAP.md          # Rencana rilis frontend & matriks pengujian
 │
-├── backend/                # ⚙️ Headless REST API Service (Python 3.12+, FastAPI, SQLite)
+├── backend/                # ⚙️ Headless REST API (FastAPI, SQLAlchemy, MySQL Laragon)
 │   ├── app/                # Modul inti, model ORM, schema Pydantic, router API
-│   │   ├── core/           # Conflict Detection Engine & per-room locking
-│   │   ├── models/         # User, Room, Booking SQLAlchemy models
+│   │   ├── core/           # Security (SHA-256) & Conflict Detection Engine
+│   │   ├── models/         # User, Room, RoomFacility, Booking (SQLAlchemy)
 │   │   ├── routers/        # /auth, /rooms, /bookings, /admin
-│   │   └── schemas/        # Request & Response Pydantic v2 schemas
-│   ├── tests/              # 23 Automated unit & integration tests
-│   ├── requirements.txt    # Dependensi backend
-│   ├── run.bat / run.ps1   # Runner otomatis server backend
-│   └── README.md           # Panduan spesifik backend
+│   │   ├── database.py     # MySQL Connection Pooling (PyMySQL)
+│   │   ├── config.py       # Pydantic Settings & environment variables
+│   │   └── seed.py         # Seeder master data ruangan & user
+│   ├── tests/              # 26 Automated test suites (pytest)
+│   └── .env                # Konfigurasi koneksi MySQL Laragon
 │
-├── MATRA/                  # 🖼️ Referensi visual & fitur (bukan bagian aplikasi)
-├── .gitignore              # Mengabaikan docs/, node_modules/, *.db, .venv/
-└── README.md               # Ringkasan utama repositori
+├── frontend/               # 💻 Aplikasi Web (React 19, TypeScript, Tailwind CSS, Vite 6)
+│   ├── src/
+│   │   ├── app/            # Root Router & Shell navigasi
+│   │   ├── pages/          # Home, Katalog, Detail Ruangan, Pengajuan Saya, Login/Register, Admin Portal
+│   │   ├── components/     # UI primitives, layout, modal booking, timeline ketersediaan
+│   │   ├── hooks/          # TanStack Query hooks dengan auto-refresh 3s real-time
+│   │   ├── services/       # HTTP Client API terhubung ke FastAPI
+│   │   ├── store/          # Zustand auth store & sesi token persisten
+│   │   └── types/          # Definisi TypeScript tersinkronisasi
+│   ├── public/assets/      # Ilustrasi WebP editorial MATRA
+│   └── vite.config.ts      # Konfigurasi proxy /api/v1 -> localhost:8000
+│
+├── MATRA/                  # 🖼️ Folder referensi editorial visual
+├── .gitignore              # Mengabaikan docs/, node_modules/, *.db, .venv/, .env
+└── README.md               # Panduan utama repositori
 ```
-
----
-
-## ⚡ Panduan Menjalankan Sistem
-
-### 1. Menjalankan Backend Service (FastAPI)
-
-```powershell
-# Masuk ke folder backend
-cd backend
-
-# Instalasi dependensi (hanya pertama kali)
-pip install -r requirements.txt
-
-# Jalankan server
-.\run.ps1
-```
-
-- **Base URL API**: `http://localhost:8000/api/v1`
-- **Swagger UI Dokumentasi Interaktif**: `http://localhost:8000/docs`
-- **ReDoc**: `http://localhost:8000/redoc`
-
----
-
-### 2. Menjalankan Frontend Application (React + Vite)
-
-```bash
-# Buka terminal baru dan masuk ke folder frontend
-cd frontend
-
-# Instalasi dependensi
-npm install
-
-# Jalankan development server
-npm run dev
-```
-
-- **Frontend Application**: `http://localhost:3000`
-
----
-
-## 👥 Akun Demo & Simulasi Peran (Role Switcher)
-
-Sistem telah dilengkapi dengan data awal (*pre-seeded data*) untuk tiga persona pengguna:
-
-| Nama Pengguna | Peran | NIM / NIP | ID Pengguna (`X-User-Id`) | Hak Akses |
-|---|---|---|---|---|
-| **Budi Santoso, S.Kom.** | `ADMIN` | `197905202008011002` | `usr_admin_01` | Dashboard metrik, approve/reject pengajuan, master timeline, CRUD ruangan |
-| **Ahmad Zaki** | `BORROWER` | `2101001` | `usr_mhs_01` | Katalog ruangan, pengajuan booking, tracking status |
-| **Dr. Siti Rahma, M.T.** | `BORROWER` | `198501152010122001` | `usr_dosen_01` | Peminjaman fasilitas dosen & ruang rapat |
-
----
-
-## 📚 Referensi Spesifikasi & Dokumentasi
-
-- **[DESIGN.md](DESIGN.md)**: sistem desain SIBIRU — palet *Pine Teal* `#006569` + *Warm Gold*,
-  tipografi editorial, komponen, motion, blueprint halaman, dan checklist anti-AI-slop.
-- **[ROADMAP.md](ROADMAP.md)**: roadmap frontend per fase, arsitektur, rute, kontrak API,
-  matriks uji manual, risiko, dan backlog pasca-MVP.
-- **[docs/DOKUMENTASI.md](docs/DOKUMENTASI.md)**: dokumentasi arsitektur backend, algoritma
-  *conflict detection*, dan skema database.
-
-### Peta rute frontend
-
-| Rute | Akses | Keterangan |
-| --- | --- | --- |
-| `/` | Publik | Beranda editorial & ruang pilihan |
-| `/katalog` | Publik | Katalog ruangan, filter, dan timeline ketersediaan |
-| `/ruangan/:roomId` | Publik | Detail ruang & pemilihan slot |
-| `/pengajuan-saya` | Login | Riwayat dan status pengajuan |
-| `/login` | Publik | Masuk identitas atau akun demo |
-| `/admin` | Admin | Ringkasan operasional |
-| `/admin/antrean` | Admin | Antrean pengajuan & keputusan |
-| `/admin/jadwal` | Admin | Matriks jadwal mingguan |
-| `/admin/ruangan` | Admin | Master ruangan |
