@@ -154,7 +154,8 @@ export const HomePage: React.FC = () => {
               className="absolute -inset-5 rounded-[2.75rem] bg-gradient-to-br from-sibiru-100/70 via-white/40 to-gold-100/60 blur-2xl"
               aria-hidden="true"
             />
-            <div className="relative overflow-hidden rounded-[2rem] border border-ink-border bg-gradient-to-br from-sibiru-50 via-white to-gold-50/70 p-6 shadow-card sm:p-8">
+            {/* Background card with overflow-hidden for decorative circles */}
+            <div className="relative overflow-hidden rounded-[2rem] border border-ink-border bg-gradient-to-br from-sibiru-50 via-white to-gold-50/70 p-6 pb-10 shadow-card sm:p-8 sm:pb-12">
               <span
                 className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-sibiru-200/40"
                 aria-hidden="true"
@@ -175,25 +176,27 @@ export const HomePage: React.FC = () => {
                 alt="Ilustrasi mahasiswa menuju ruang kampus SIBIRU"
                 className="relative z-10 mx-auto max-h-[19rem] w-auto object-contain drop-shadow-[0_22px_34px_rgba(0,42,43,0.14)]"
               />
+            </div>
 
-              <div className="absolute -bottom-4 -left-3 z-20 flex items-center gap-2.5 rounded-xl border border-ink-border bg-white/95 px-3.5 py-2.5 shadow-card backdrop-blur sm:-left-6">
-                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-sibiru-50 text-sibiru-600">
-                  <CalendarDays size={17} />
-                </span>
-                <div>
-                  <p className="text-[0.625rem] font-bold uppercase tracking-[0.1em] text-sibiru-600">
-                    Jadwal terpadu
-                  </p>
-                  <p className="mt-0.5 font-mono text-[0.625rem] text-ink-muted">
-                    {formatDateLong(todayISO())}
-                  </p>
-                </div>
+            {/* Floating Badge Jadwal Terpadu - Placed outside overflow-hidden so it never clips */}
+            <div className="absolute -bottom-3 -left-2 z-20 flex items-center gap-2.5 rounded-2xl border border-ink-border bg-white/95 px-4 py-2.5 shadow-lift backdrop-blur-md sm:-bottom-4 sm:-left-4">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-sibiru-50 text-sibiru-600">
+                <CalendarDays size={18} />
+              </span>
+              <div className="min-w-0 pr-1">
+                <p className="text-[0.625rem] font-bold uppercase tracking-[0.12em] text-sibiru-700">
+                  Jadwal terpadu
+                </p>
+                <p className="mt-0.5 whitespace-nowrap font-mono text-[0.6875rem] font-semibold text-ink-heading">
+                  {formatDateLong(todayISO())}
+                </p>
               </div>
+            </div>
 
-              <div className="absolute -right-2 top-16 z-20 hidden items-center gap-1.5 rounded-full border border-ink-border bg-white/95 px-3 py-1.5 shadow-subtle backdrop-blur sm:flex">
-                <ShieldCheck size={13} className="text-sibiru-500" />
-                <span className="text-[0.625rem] font-semibold text-ink-heading">Anti bentrok</span>
-              </div>
+            {/* Floating Badge Anti Bentrok */}
+            <div className="absolute -right-2 top-10 z-20 hidden items-center gap-1.5 rounded-full border border-ink-border bg-white/95 px-3.5 py-1.5 shadow-subtle backdrop-blur-md sm:flex">
+              <ShieldCheck size={14} className="text-sibiru-600" />
+              <span className="text-[0.6875rem] font-bold text-ink-heading">Anti bentrok</span>
             </div>
           </div>
         </div>
