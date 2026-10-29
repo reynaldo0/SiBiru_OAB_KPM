@@ -4,23 +4,13 @@
   "description": "Sistem Informasi Peminjaman Ruangan Internal (SIBIRU) - Monorepo",
   "private": true,
   "scripts": {
-    "start": "python cli.py start",
-    "dev": "python cli.py start",
-    "backend": "python cli.py backend",
+    "dev": "npm --prefix frontend run dev",
+    "backend": "python run.py",
     "frontend": "npm --prefix frontend run dev",
-    "build:frontend": "npm --prefix frontend run build",
-    "status": "python cli.py status",
+    "start": "python cli.py start",
     "seed": "python cli.py seed",
+    "status": "python cli.py status",
     "test": "python cli.py test"
   },
-  "keywords": [
-    "sibiru",
-    "fastapi",
-    "mysql",
-    "laragon",
-    "react19",
-    "vite"
-  ],
-  "author": "Deepmind Antigravity Pair Programmer",
   "license": "MIT"
 }
