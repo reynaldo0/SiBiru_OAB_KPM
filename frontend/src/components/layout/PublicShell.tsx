@@ -276,7 +276,7 @@ export const PublicShell: React.FC = () => {
 
           <div className="mt-10 flex flex-col gap-2 border-t border-white/10 pt-5 text-[0.625rem] text-white/40 sm:flex-row sm:items-center sm:justify-between">
             <span>© {new Date().getFullYear()} SIBIRU · {APP_CONFIG.FULL_NAME}</span>
-            <span>FastAPI REST API · React 19 · Waktu dalam WIB</span>
+            <span>Dikembangkan untuk OAB KPM UNJ · Waktu dalam WIB</span>
           </div>
         </div>
       </footer>

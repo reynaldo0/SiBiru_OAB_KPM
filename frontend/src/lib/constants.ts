@@ -1,9 +1,9 @@
 export const APP_CONFIG = {
   NAME: 'SIBIRU',
-  FULL_NAME: 'Sistem Informasi Peminjaman Ruangan Internal',
+  FULL_NAME: 'Sistem Informasi Peminjaman Ruangan Internal · OAB KPM UNJ',
   TAGLINE: 'Sistem Informasi Peminjaman Ruangan',
   DESCRIPTION:
-    'Satu tempat untuk menemukan ruang, memeriksa jadwal, dan mengajukan peminjaman tanpa bentrok.',
+    'Sistem reservasi dan pengelolaan fasilitas terpadu yang dikembangkan untuk OAB KPM UNJ.',
   VERSION: '1.0.0',
   OPERATING_HOURS: {
     START: 7,
