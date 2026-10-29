@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowRight, Clock3, LogIn, Menu, ShieldCheck, X } from 'lucide-react';
+import { ArrowRight, Clock3, LayoutDashboard, LogIn, Menu, ShieldCheck, X } from 'lucide-react';
 import { NAV_ITEMS, APP_CONFIG } from '../../lib/constants';
 import { cn } from '../../lib/utils';
 import { useAuthStore } from '../../store/auth.store';
@@ -60,17 +60,28 @@ export const PublicShell: React.FC = () => {
                   {item.label}
                 </NavLink>
               ))}
-              {user?.role === 'ADMIN' && (
-                <NavLink
-                  to="/admin"
-                  className={({ isActive }) => cn('nav-link', isActive && 'nav-link-active')}
-                >
-                  Portal Pengelola
-                </NavLink>
-              )}
             </nav>
 
             <div className="flex items-center gap-2">
+              {/* Button Dashboard Pengelola */}
+              {user?.role === 'ADMIN' ? (
+                <Link
+                  to="/admin"
+                  className="hidden h-9 items-center gap-1.5 rounded-xl border border-sibiru-600 bg-sibiru-900 px-3.5 text-xs font-bold text-white shadow-subtle transition-all duration-200 hover:bg-sibiru-800 sm:inline-flex"
+                >
+                  <LayoutDashboard size={14} className="text-gold-400" />
+                  Dashboard Pengelola
+                </Link>
+              ) : (
+                <Link
+                  to="/login?next=/admin"
+                  className="hidden h-9 items-center gap-1.5 rounded-xl border border-ink-borderStrong bg-ink-soft/70 px-3 text-xs font-semibold text-ink-heading shadow-subtle transition-all duration-200 hover:border-sibiru-300 hover:bg-sibiru-50 sm:inline-flex"
+                >
+                  <LayoutDashboard size={14} className="text-sibiru-600" />
+                  Portal Pengelola
+                </Link>
+              )}
+
               {user ? (
                 <RoleSwitcher />
               ) : (
@@ -153,22 +164,18 @@ export const PublicShell: React.FC = () => {
                     <ArrowRight size={15} className="text-ink-muted" />
                   </NavLink>
                 ))}
-                {user?.role === 'ADMIN' && (
-                  <NavLink
-                    to="/admin"
-                    className={({ isActive }) =>
-                      cn(
-                        'flex items-center justify-between rounded-xl px-3.5 py-3 text-sm font-semibold transition-colors',
-                        isActive
-                          ? 'bg-sibiru-50 text-sibiru-700'
-                          : 'text-ink-body hover:bg-ink-soft',
-                      )
-                    }
+                <div className="pt-2">
+                  <Link
+                    to={user?.role === 'ADMIN' ? '/admin' : '/login?next=/admin'}
+                    className="flex items-center justify-between rounded-xl border border-sibiru-200 bg-sibiru-50 px-3.5 py-3 text-sm font-bold text-sibiru-800 transition-colors hover:bg-sibiru-100"
                   >
-                    Portal Pengelola
-                    <ShieldCheck size={15} className="text-ink-muted" />
-                  </NavLink>
-                )}
+                    <span className="flex items-center gap-2">
+                      <LayoutDashboard size={16} className="text-sibiru-600" />
+                      Dashboard Pengelola
+                    </span>
+                    <ArrowRight size={15} className="text-sibiru-500" />
+                  </Link>
+                </div>
               </nav>
 
               <div className="border-t border-ink-border p-4">

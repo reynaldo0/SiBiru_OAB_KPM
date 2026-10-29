@@ -1,5 +1,3 @@
-import type { UserRole } from '../types';
-
 export const APP_CONFIG = {
   NAME: 'SIBIRU',
   FULL_NAME: 'Sistem Informasi Peminjaman Ruangan Internal',
@@ -34,46 +32,6 @@ export const FACILITY_OPTIONS = [
   'Sound System',
   'Komputer',
 ] as const;
-
-export interface DemoAccount {
-  id: string;
-  name: string;
-  identifier: string;
-  role: UserRole;
-  organization: string;
-  label: string;
-  subtitle: string;
-}
-
-export const DEMO_ACCOUNTS: DemoAccount[] = [
-  {
-    id: 'usr_admin_01',
-    name: 'Budi Santoso, S.Kom.',
-    identifier: '197905202008011002',
-    role: 'ADMIN',
-    organization: 'Bagian Fasilitas & Sarpras Kampus',
-    label: 'Administrator',
-    subtitle: 'Pengelola fasilitas & persetujuan',
-  },
-  {
-    id: 'usr_mhs_01',
-    name: 'Ahmad Zaki',
-    identifier: '2101001',
-    role: 'BORROWER',
-    organization: 'HIMA Informatika',
-    label: 'Mahasiswa',
-    subtitle: 'Peminjam · HIMA Informatika',
-  },
-  {
-    id: 'usr_dosen_01',
-    name: 'Dr. Siti Rahma, M.T.',
-    identifier: '198501152010122001',
-    role: 'BORROWER',
-    organization: 'Prodi Sistem Informasi',
-    label: 'Dosen',
-    subtitle: 'Peminjam · Prodi Sistem Informasi',
-  },
-];
 
 export const REJECTION_PRESETS = [
   'Ruangan dialokasikan untuk kegiatan resmi universitas pada slot tersebut.',

@@ -108,12 +108,3 @@ export function useLogout() {
     clearSession();
   }, [clearSession, queryClient]);
 }
-
-export function useDemoUsers() {
-  return useQuery({
-    queryKey: ['auth', 'demo-users'],
-    queryFn: () => authService.getDemoUsers(),
-    staleTime: 1000 * 60 * 10,
-    retry: false,
-  });
-}

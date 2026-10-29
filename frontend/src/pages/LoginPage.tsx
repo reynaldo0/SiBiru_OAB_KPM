@@ -1,16 +1,12 @@
 import React, { useState } from 'react';
 import { Navigate, Link, useNavigate, useSearchParams } from 'react-router-dom';
 import {
-  ArrowRight,
-  Briefcase,
   CheckCircle2,
   Eye,
   EyeOff,
-  GraduationCap,
   LogIn,
-  ShieldCheck,
-  Sparkles,
   UserPlus,
+  Lock,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuthSession, useLogin, useRegister } from '../hooks/use-auth';
@@ -18,48 +14,6 @@ import { ScreenLoader } from '../components/layout/LoadingDots';
 import { Button } from '../components/ui/Button';
 import { Field } from '../components/ui/Field';
 import type { User, UserRole } from '../types';
-
-interface DemoCredential {
-  id: string;
-  name: string;
-  subtitle: string;
-  identifier: string;
-  password: string;
-  role: 'ADMIN' | 'Mahasiswa' | 'Dosen';
-}
-
-const DEMO_CREDENTIALS: DemoCredential[] = [
-  {
-    id: 'admin',
-    name: 'Drs. Hendro Wibowo, M.T.',
-    subtitle: 'Pengelola Fasilitas & Sarpras',
-    identifier: '197905202008011002',
-    password: 'admin123',
-    role: 'ADMIN',
-  },
-  {
-    id: 'mhs',
-    name: 'Rian Pratama',
-    subtitle: 'Mahasiswa · BEM Fakultas Teknik',
-    identifier: '2101001',
-    password: 'mhs123',
-    role: 'Mahasiswa',
-  },
-  {
-    id: 'dosen',
-    name: 'Dr. Sri Wahyuni, M.Kom.',
-    subtitle: 'Dosen Pembina · Laboratorium AI',
-    identifier: '198501152010122001',
-    password: 'dosen123',
-    role: 'Dosen',
-  },
-];
-
-const demoRoleIcon: Record<string, React.ElementType> = {
-  ADMIN: ShieldCheck,
-  Mahasiswa: GraduationCap,
-  Dosen: Briefcase,
-};
 
 function resolveRedirect(user: User, next: string | null): string {
   if (next && next.startsWith('/') && !next.startsWith('//')) {
@@ -135,35 +89,6 @@ export const LoginPage: React.FC = () => {
         err instanceof Error
           ? err.message
           : 'Identitas atau kata sandi tidak cocok. Silakan periksa kembali.',
-      );
-    }
-  };
-
-  const handleFillDemo = (demo: DemoCredential) => {
-    setActiveTab('login');
-    setLoginIdentifier(demo.identifier);
-    setLoginPassword(demo.password);
-    setLoginError(null);
-    toast.info(`Kredensial ${demo.role} dimuat`, {
-      description: 'Klik tombol "Masuk ke Sistem" untuk melanjutkan verifikasi.',
-    });
-  };
-
-  const handleQuickDemoLogin = async (demo: DemoCredential) => {
-    setActiveTab('login');
-    setLoginIdentifier(demo.identifier);
-    setLoginPassword(demo.password);
-    setLoginError(null);
-
-    try {
-      const response = await login.mutateAsync({
-        identifier: demo.identifier,
-        password: demo.password,
-      });
-      completeAuth(response.user);
-    } catch (err) {
-      setLoginError(
-        err instanceof Error ? err.message : 'Kredensial demo tidak dapat digunakan.',
       );
     }
   };
@@ -335,12 +260,12 @@ export const LoginPage: React.FC = () => {
                     </p>
                   </div>
 
-                  <form onSubmit={handleLoginSubmit} className="mt-6 space-y-3.5">
+                  <form onSubmit={handleLoginSubmit} className="mt-6 space-y-4">
                     <Field
                       label="NIM / NIP / Alamat Email"
                       htmlFor="login-identifier"
                       required
-                      hint="Contoh: 2101001 atau 197905202008011002"
+                      hint="Masukkan NIM, NIP, atau email akun kampus"
                     >
                       <input
                         id="login-identifier"
@@ -350,7 +275,7 @@ export const LoginPage: React.FC = () => {
                           setLoginIdentifier(e.target.value);
                           setLoginError(null);
                         }}
-                        placeholder="NIM, NIP, atau Email terdaftar"
+                        placeholder="Contoh: 2101001 atau 197905202008011002"
                         className="input input-mono"
                         autoComplete="username"
                         autoFocus
@@ -368,7 +293,7 @@ export const LoginPage: React.FC = () => {
                             setLoginPassword(e.target.value);
                             setLoginError(null);
                           }}
-                          placeholder="Masukkan kata sandi"
+                          placeholder="Masukkan kata sandi akun"
                           className="input pr-10"
                           autoComplete="current-password"
                           required
@@ -402,71 +327,17 @@ export const LoginPage: React.FC = () => {
                     </Button>
                   </form>
 
-                  {/* Dummy Credentials Section */}
-                  <div className="my-6 flex items-center gap-3">
-                    <span className="h-px flex-1 bg-ink-border" />
-                    <span className="text-[0.5625rem] font-bold uppercase tracking-[0.14em] text-ink-muted">
-                      atau gunakan akun demo uji coba
-                    </span>
-                    <span className="h-px flex-1 bg-ink-border" />
-                  </div>
-
-                  <div className="space-y-2">
-                    {DEMO_CREDENTIALS.map((account) => {
-                      const Icon = demoRoleIcon[account.role] ?? Sparkles;
-                      const isSelected =
-                        loginIdentifier === account.identifier &&
-                        loginPassword === account.password;
-
-                      return (
-                        <div
-                          key={account.id}
-                          className={`group flex w-full items-center justify-between gap-3 rounded-xl border p-3 text-left transition-all duration-200 ${
-                            isSelected
-                              ? 'border-sibiru-400 bg-sibiru-50/60 ring-2 ring-sibiru-200'
-                              : 'border-ink-border bg-white hover:border-sibiru-200 hover:bg-sibiru-50/30'
-                          }`}
-                        >
-                          <div className="flex items-center gap-3 min-w-0 flex-1">
-                            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-sibiru-100 bg-sibiru-50 text-sibiru-600">
-                              <Icon size={16} strokeWidth={1.8} />
-                            </span>
-                            <div className="min-w-0 flex-1">
-                              <div className="flex items-center gap-2">
-                                <span className="block truncate text-[0.75rem] font-bold text-ink-heading">
-                                  {account.name}
-                                </span>
-                                <span className="shrink-0 rounded bg-ink-soft px-1.5 py-0.2 font-mono text-[0.5625rem] font-semibold text-ink-muted">
-                                  {account.role}
-                                </span>
-                              </div>
-                              <span className="mt-0.5 block truncate text-[0.625rem] text-ink-muted">
-                                ID: <span className="font-mono text-ink-heading">{account.identifier}</span> · Sandi: <span className="font-mono text-ink-heading">{account.password}</span>
-                              </span>
-                            </div>
-                          </div>
-
-                          <div className="flex items-center gap-1.5 shrink-0">
-                            <button
-                              type="button"
-                              onClick={() => handleFillDemo(account)}
-                              className="rounded-lg border border-ink-border px-2 py-1 text-[0.625rem] font-semibold text-ink-muted hover:border-sibiru-300 hover:text-sibiru-600 hover:bg-white"
-                            >
-                              Isi Form
-                            </button>
-                            <button
-                              type="button"
-                              disabled={login.isPending}
-                              onClick={() => void handleQuickDemoLogin(account)}
-                              className="inline-flex items-center gap-1 rounded-lg bg-sibiru-50 px-2.5 py-1 text-[0.625rem] font-bold text-sibiru-700 hover:bg-sibiru-100 disabled:opacity-50"
-                            >
-                              Masuk
-                              <ArrowRight size={11} />
-                            </button>
-                          </div>
-                        </div>
-                      );
-                    })}
+                  {/* Security Notice */}
+                  <div className="mt-8 rounded-2xl border border-ink-border bg-ink-soft/40 p-3.5 text-xs text-ink-muted">
+                    <div className="flex items-start gap-2.5">
+                      <Lock size={15} className="mt-0.5 shrink-0 text-sibiru-600" />
+                      <div className="text-[0.6875rem] leading-relaxed">
+                        <p className="font-semibold text-ink-heading">Keamanan & Privasi Akun</p>
+                        <p className="mt-0.5">
+                          Kredensial Anda dienkripsi dengan standar keamanan tinggi. Jangan pernah membagikan kata sandi Anda kepada pihak lain.
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}
@@ -493,7 +364,7 @@ export const LoginPage: React.FC = () => {
                           setRegName(e.target.value);
                           setRegisterError(null);
                         }}
-                        placeholder="Contoh: Ahmad Fauzi"
+                        placeholder="Nama lengkap sesuai identitas kampus"
                         className="input"
                         required
                       />
@@ -509,7 +380,7 @@ export const LoginPage: React.FC = () => {
                             setRegIdentifier(e.target.value);
                             setRegisterError(null);
                           }}
-                          placeholder="2201099"
+                          placeholder="Nomor identitas kampus"
                           className="input input-mono"
                           required
                         />
@@ -575,7 +446,7 @@ export const LoginPage: React.FC = () => {
                           type="tel"
                           value={regPhone}
                           onChange={(e) => setRegPhone(e.target.value)}
-                          placeholder="08123456789"
+                          placeholder="Nomor kontak aktif"
                           className="input input-mono"
                         />
                       </Field>

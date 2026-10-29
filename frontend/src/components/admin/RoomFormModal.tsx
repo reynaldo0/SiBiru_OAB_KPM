@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { AlertTriangle, Check, ImageIcon, Sparkles, Trash2, ToggleLeft, ToggleRight } from 'lucide-react';
+import { AlertTriangle, Check, Sparkles, Trash2, ToggleLeft, ToggleRight } from 'lucide-react';
 import { toast } from 'sonner';
 import type { Room } from '../../types';
 import { useCreateRoom, useDeleteRoom, useUpdateRoom } from '../../hooks/use-admin';
@@ -292,12 +292,6 @@ export const RoomFormModal: React.FC<RoomFormModalProps> = ({ isOpen, onClose, r
               </button>
             ))}
           </div>
-          {imageUrl && (
-            <p className="mt-1.5 flex items-center gap-1 font-mono text-[0.5625rem] text-ink-muted">
-              <ImageIcon size={10} />
-              {imageUrl}
-            </p>
-          )}
         </div>
 
         {error && (

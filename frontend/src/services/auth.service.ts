@@ -1,5 +1,5 @@
 import { apiRequest } from './api-client';
-import type { User, DemoUser, LoginPayload, RegisterPayload, LoginResponse } from '../types';
+import type { User, LoginPayload, RegisterPayload, LoginResponse } from '../types';
 
 export const authService = {
   login: async (payload: LoginPayload): Promise<LoginResponse> => {
@@ -18,9 +18,5 @@ export const authService = {
 
   getMe: async (): Promise<User> => {
     return apiRequest<User>('/auth/me');
-  },
-
-  getDemoUsers: async (): Promise<DemoUser[]> => {
-    return apiRequest<DemoUser[]>('/auth/demo-users');
   },
 };

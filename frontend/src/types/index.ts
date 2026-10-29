@@ -11,11 +11,6 @@ export interface User {
   created_at?: string;
 }
 
-export interface DemoUser extends User {
-  default_password?: string;
-  label?: string;
-}
-
 export interface Room {
   id: string;
   name: string;
