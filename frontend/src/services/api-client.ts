@@ -1,7 +1,18 @@
 import { AUTH_TOKEN_KEY } from '../lib/constants';
 import type { BookingStatus, ConflictDetail } from '../types';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api/v1';
+function resolveApiBaseUrl(): string {
+  const envUrl = (import.meta.env.VITE_API_BASE_URL || '').trim().replace(/\/+$/, '');
+  if (!envUrl) {
+    return '/api/v1';
+  }
+  if (!envUrl.endsWith('/api/v1') && !envUrl.endsWith('/api')) {
+    return `${envUrl}/api/v1`;
+  }
+  return envUrl;
+}
+
+const API_BASE_URL = resolveApiBaseUrl();
 
 type JsonRecord = Record<string, any>;
 
@@ -167,7 +178,8 @@ export async function apiRequest<T>(endpoint: string, options: RequestInit = {})
   headers.set('Accept', 'application/json');
   if (token) headers.set('X-User-Id', token);
 
-  const url = endpoint.startsWith('http') ? endpoint : `${API_BASE_URL}${endpoint}`;
+  const normalizedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  const url = endpoint.startsWith('http') ? endpoint : `${API_BASE_URL}${normalizedEndpoint}`;
 
   let response: Response;
   try {
@@ -175,7 +187,7 @@ export async function apiRequest<T>(endpoint: string, options: RequestInit = {})
   } catch {
     throw new ApiError(
       0,
-      'Tidak dapat terhubung ke layanan SIBIRU. Pastikan backend berjalan di port 8000.',
+      'Tidak dapat terhubung ke layanan SIBIRU. Periksa koneksi internet Anda atau pastikan server backend aktif.',
     );
   }
 

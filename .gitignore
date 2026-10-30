@@ -26,8 +26,11 @@ frontend/build/
 
 # Lingkungan & Editor
 .env
-.env.*
+.env.local
+.env.*.local
 !.env.example
+!.env.production
+!.env.development
 .vscode/
 .idea/
 *.log

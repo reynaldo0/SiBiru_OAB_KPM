@@ -266,7 +266,7 @@ export const CatalogPage: React.FC = () => {
         <div className="mt-5 rounded-2xl border border-red-200 bg-red-50 px-5 py-6 text-sm text-red-800">
           <p className="font-bold">Katalog belum dapat dimuat</p>
           <p className="mt-1 text-xs leading-relaxed text-red-700">
-            Pastikan layanan backend SIBIRU aktif pada port 8000, lalu muat ulang halaman ini.
+            Tidak dapat terhubung ke server SIBIRU. Periksa koneksi internet Anda atau coba beberapa saat lagi.
           </p>
         </div>
       ) : visibleRooms.length === 0 ? (

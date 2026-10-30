@@ -296,7 +296,7 @@ export const HomePage: React.FC = () => {
 
           {error && (
             <div className="col-span-full rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-xs text-red-800">
-              Katalog belum dapat dimuat. Pastikan layanan backend aktif di port 8000.
+              Katalog belum dapat dimuat. Periksa koneksi internet Anda atau coba beberapa saat lagi.
             </div>
           )}
 

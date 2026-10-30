@@ -4,6 +4,7 @@
   "description": "Sistem Informasi Peminjaman Ruangan Internal (SIBIRU) - Monorepo",
   "private": true,
   "scripts": {
+    "build": "npm --prefix frontend run build",
     "dev": "npm --prefix frontend run dev",
     "backend": "python run.py",
     "frontend": "npm --prefix frontend run dev",
